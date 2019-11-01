@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Duncan Mahood</title>
+    <link>/</link>
+      <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <description>Duncan Mahood</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Fri, 01 Nov 2019 12:50:19 -1200</lastBuildDate>
+    <image>
+      <url>/img/icon-192.png</url>
+      <title>Duncan Mahood</title>
+      <link>/</link>
+    </image>
+    
+    <item>
+      <title>Malaria Risk Map - Thailand</title>
+      <link>/project/malaria-risk-map-thailand/</link>
+      <pubDate>Fri, 01 Nov 2019 12:50:19 -1200</pubDate>
+      <guid>/project/malaria-risk-map-thailand/</guid>
+      <description>&lt;p&gt;Look at this interesting project!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Nipah Virus Model</title>
+      <link>/project/nipah-virus-model/</link>
+      <pubDate>Fri, 01 Nov 2019 10:30:19 -1030</pubDate>
+      <guid>/project/nipah-virus-model/</guid>
+      <description>&lt;p&gt;Look at this interesting project!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.pragatiprasad.com/&#34; target=&#34;_blank&#34;&gt;external&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The Confounder</title>
+      <link>/project/the-confounder/</link>
+      <pubDate>Thu, 31 Oct 2019 17:05:19 -0400</pubDate>
+      <guid>/project/the-confounder/</guid>
+      <description>&lt;p&gt;Look at this interesting project!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://scholarblogs.emory.edu/epi/&#34; target=&#34;_blank&#34;&gt;external&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
