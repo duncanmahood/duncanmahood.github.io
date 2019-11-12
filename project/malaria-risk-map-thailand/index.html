@@ -28,7 +28,7 @@
   
     
   
-  <meta name="description" content="Look at this interesting project!">
+  <meta name="description" content="Spatial analysis of local area incident transition from malaria-free to active transmission status.">
 
   
   <link rel="alternate" hreflang="en-us" href="/project/malaria-risk-map-thailand/">
@@ -105,10 +105,9 @@
   
   
     
-    
   
   
-  <meta property="twitter:card" content="summary">
+  <meta property="twitter:card" content="summary_large_image">
   
   <meta property="twitter:site" content="@duncanmahood">
   <meta property="twitter:creator" content="@duncanmahood">
@@ -116,8 +115,8 @@
   <meta property="og:site_name" content="Duncan Mahood">
   <meta property="og:url" content="/project/malaria-risk-map-thailand/">
   <meta property="og:title" content="Malaria Risk Map - Thailand | Duncan Mahood">
-  <meta property="og:description" content="Look at this interesting project!"><meta property="og:image" content="/img/icon-192.png">
-  <meta property="twitter:image" content="/img/icon-192.png"><meta property="og:locale" content="en-us">
+  <meta property="og:description" content="Spatial analysis of local area incident transition from malaria-free to active transmission status."><meta property="og:image" content="/project/malaria-risk-map-thailand/featured.png">
+  <meta property="twitter:image" content="/project/malaria-risk-map-thailand/featured.png"><meta property="og:locale" content="en-us">
   
     
       <meta property="article:published_time" content="2019-11-01T12:50:19-12:00">
@@ -150,6 +149,10 @@
   },
   "headline": "Malaria Risk Map - Thailand",
   
+  "image": [
+    "/project/malaria-risk-map-thailand/featured.png"
+  ],
+  
   "datePublished": "2019-11-01T12:50:19-12:00",
   "dateModified": "2019-11-01T12:50:19-12:00",
   
@@ -166,7 +169,7 @@
       "url": "/img/icon-512.png"
     }
   },
-  "description": "Look at this interesting project!"
+  "description": "Spatial analysis of local area incident transition from malaria-free to active transmission status."
 }
 </script>
 
@@ -373,18 +376,24 @@
 
 
 
-  
+
+
+
+
+
+
+
 
   
   
-  
+
+
 <div class="article-container pt-3">
   <h1>Malaria Risk Map - Thailand</h1>
 
   
 
   
-    
 
 
 <div class="article-metadata">
@@ -415,22 +424,29 @@
 
 </div>
 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 684px; max-height: 531px;">
+  <div style="position: relative">
+    <img src="/project/malaria-risk-map-thailand/featured.png" alt="" class="featured-image">
+    
+  </div>
 </div>
 
 
@@ -438,7 +454,126 @@
   <div class="article-container">
 
     <div class="article-style">
-      <p>Look at this interesting project!</p>
+      
+
+
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>The number of malaria cases in Thailand has dropped substantially in recent years and, as a result, the Thai Ministry of Public Health has recently transitioned from a strategy of malaria control to a strategy of malaria elimination, with the goal of attaining zero locally-acquired cases by 2024. While much of the country has now been malaria-free for many years, the vast majority of active transmission takes place in three particular regions bordering Mynamar (West), Cambodia (East), and Malaysia (South).</p>
+<div id="reversion" class="section level2">
+<h2>Reversion</h2>
+<p>As Thailand approaches elimination, the goal is to reduce the number of active transmission areas and prevent places that were previously non-active from reverting to active-transmission status. While the Malaria Elimination Strategy is highly focused on the former goal, less attention has been given to prevention of local area reversion and how it may impede progress towards country-wide malaria elimination.</p>
+<blockquote>
+<p>Reversion: when a foci with no local malaria transmission during the previous 3 years (non-active) experiences at least 1 locally acquired case, thus becoming a location with recent active malaria transmission (active).</p>
+</blockquote>
+</div>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p>The goal of this project is to investigate the spatial intensity of local-area reversion, to consider foci reversion in the context of a transmission dynamics framework, and to make recommendations for reversion reduction policies in Thailand.</p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>To address these questions, we analyzed data from the Thailand Ministry of Public Health, Vector Bourne Disease Unit’s Malaria Information System (MIS), which is the country-wide vertical surveillance system for tracking malaria cases. The dataset contains case counts, population estimates, and latitude/longitude points for approximately 90,000 foci (hamlets or sub-village geographical units) for years 2011-2017, covering all of Thailand’s 77 provinces.</p>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<p>For this analysis I performed a Kernel Density Relative Risk Map of reversion intensity.</p>
+</div>
+</div>
+<div id="spatial-analysis-kernel-density-relative-risk-map" class="section level1">
+<h1>Spatial Analysis: Kernel Density Relative Risk Map</h1>
+<p>Because reversion is a point process, we want to assess the spatial intensity of points. This motivates the use of Kernal Density Estimation with spatial points. The goal is to produce a map showing the density of foci that reverted during the study period, conditional on the density of all foci that were not active at baseline.</p>
+<pre><code>## Simple feature collection with 77 features and 6 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: 97.34632 ymin: 5.610785 xmax: 105.6409 ymax: 20.46396
+## epsg (SRID):    4240
+## proj4string:    +proj=longlat +a=6377276.345 +b=6356075.41314024 +towgs84=210,814,289,0,0,0,0 +no_defs
+## # A tibble: 77 x 7
+##    ISO   PROV_NAMT Adm1Name Adm1Code Adm0Name Admin0Code
+##    &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     
+##  1 TH    เชียงใหม่   Chiang … TH50     Thailand TH        
+##  2 TH    เชียงราย   Chiang … TH57     Thailand TH        
+##  3 TH    เพชรบุรี    Phetcha… TH76     Thailand TH        
+##  4 TH    เพชรบูรณ์   Phetcha… TH67     Thailand TH        
+##  5 TH    เลย       Loei     TH42     Thailand TH        
+##  6 TH    แพร่       Phrae    TH54     Thailand TH        
+##  7 TH    แม่ฮ่องสอน  Mae Hon… TH58     Thailand TH        
+##  8 TH    กระบี่      Krabi    TH81     Thailand TH        
+##  9 TH    กรุงเทพม…  Bangkok  TH10     Thailand TH        
+## 10 TH    กาญจนบุรี   Kanchan… TH25     Thailand TH        
+## # ... with 67 more rows, and 1 more variable: geometry &lt;MULTIPOLYGON [°]&gt;</code></pre>
+<p>After importing and cleaning the data, we start by converting the points to SP Objects.</p>
+<pre class="r"><code>P &lt;- CRS(&quot;+init=epsg:4240&quot;)
+
+# This is points for HE and Rev foci in select counties
+non.active_point &lt;- SpatialPointsDataFrame(coords = foci.non.active[ , 6:7], data = foci.non.active, proj4string = P)
+
+rev_point &lt;- SpatialPointsDataFrame(coords = foci.rev[ , 6:7], data = foci.rev, proj4string = P)</code></pre>
+<p>Next, we create the owin window and the reversion/non-active ppp objects.</p>
+<pre class="r"><code># Create window 
+boundary_owin &lt;- maptools::as.owin.SpatialPolygons(boundary)
+
+# Create the non-active ppp object
+non.active_ppp &lt;- ppp(x = coordinates(non.active_point)[, 1], 
+                      y = coordinates(non.active_point)[, 2],
+                      window = boundary_owin)
+
+# Create the rev ppp object
+rev_ppp &lt;- ppp(x = coordinates(rev_point)[, 1], 
+               y = coordinates(rev_point)[, 2],
+               window = boundary_owin)</code></pre>
+<p>We calculate bandwidths using the LIK.density() function. The LIK bandwidth for non-active points took a long time, so I input the value direclty here.</p>
+<pre class="r"><code>h_LIK_rev &lt;- LIK.density(rev_ppp)</code></pre>
+<pre><code>## Searching for optimal h in [0.000928335559257248, 1.38242995721322]...Done.</code></pre>
+<pre class="r"><code>h_LIK_non.active &lt;- 0.05  </code></pre>
+<p>Create the KDE surfaces then use risk() to put them together into a single map.</p>
+<pre class="r"><code># Creating Adaptive KDE Surfaces
+kde_adapt_rev_LINK &lt;- bivariate.density(rev_ppp, 
+                                        h0 = h_LIK_rev, 
+                                        edge = &#39;diggle&#39;, 
+                                        adapt = TRUE,
+                                        verbose = FALSE)
+
+kde_adapt_non.active_LINK &lt;- bivariate.density(non.active_ppp, 
+                                               h0 = 0.05, 
+                                               edge = &#39;diggle&#39;,
+                                               adapt = TRUE,
+                                               verbose = FALSE)      
+
+
+# Create the Relative Risk map using the two adaptive KDE surfaces
+imr_adapt_LINK &lt;- risk(kde_adapt_rev_LINK, kde_adapt_non.active_LINK, 
+                       tolerate = T,
+                       verbose = F, 
+                       log = T,
+                       edge = &#39;diggle&#39;)</code></pre>
+<p>Finally, we can plot the Relative Risk Map.</p>
+<pre class="r"><code># Plot the Relative Risk Map
+background &lt;- st_union(provinces)
+plot(imr_adapt_LINK, col = rev(rainbow(100, start = 0, end = 4/6)), main = &quot;Relative Risk of Reversion&quot;)
+plot(background, col = &#39;grey&#39;, add = T)
+plot(imr_adapt_LINK, col = rev(rainbow(100, start = 0, end = 4/6)), add = T)</code></pre>
+<p><img src="/project/malaria-risk-map-thailand/index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<p>The relative risk map shows that the spatial intensity of foci that reverted is significantly higher than expected given the spatial intensity of non-active foci in areas along the eastern and western coasts that are known to have high local malaria transmission.</p>
+</div>
+</div>
+<div id="force-of-reversion" class="section level1">
+<h1>Force of Reversion</h1>
+<p>These results suggest that foci reversion is a non-random process in space and in terms of time-to-event (rate). In terms of transmission dynamics, the rate of reversion can be thought of as analogous to the force of infection (rate at which Susceptible (Non- active transmission foci) become Infected (Reverted foci)).</p>
+<p>In transmission dynamics:</p>
+<blockquote>
+<p>Force of Infection (lamda) = Contact rate (alpha) x Probability of transmission per contact (beta) x Proportion of the population that is infected</p>
+</blockquote>
+<p>In our study alpha and beta were not measured directly, but their product can be estimated (for each district) by dividing the reversion rate by the proportion of active transmission foci per district. Overall, this equation shows how the Force of Reversion is primarily driven by the <strong>surrounding proportion of foci in which there is active transmission</strong>. Our model (not shown) and our relative risk map support this hypothesis as well.</p>
+</div>
+<div id="recommendations" class="section level1">
+<h1>Recommendations</h1>
+<p>Current guidelines do not require malaria prevention measures in non-active transmission foci that are located in high transmission districts. Although, sometimes prevention interventions are executed in these foci regardless. Our analysis suggests that these foci are at high risk of reversion due to both spatial intensity of reversion and transmission dynamic frameworks.</p>
+<p><strong>Therefore, we suggest that Thailand should consider expanding their interventions throughout districts with high proportion of active transmission foci.</strong></p>
+</div>
 
     </div>
 
@@ -566,7 +701,7 @@
     <div class="media-body">
       <h5 class="card-title"><a href="/">Duncan Mahood</a></h5>
       <h6 class="card-subtitle">Epidemiology - Data Science - Web Development</h6>
-      <p class="card-text">My interests include infectious disease modeling, outbreak science and spatial epidemiology.</p>
+      <p class="card-text">Duncan Mahood is a public health consultant with Epidemiologic Research &amp; Methods (ERM) and the Epidemiology Department at Rollins School of Public Health.</p>
       <ul class="network-icon" aria-hidden="true">
   
     

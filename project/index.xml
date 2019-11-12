@@ -17,7 +17,126 @@
       <link>/project/malaria-risk-map-thailand/</link>
       <pubDate>Fri, 01 Nov 2019 12:50:19 -1200</pubDate>
       <guid>/project/malaria-risk-map-thailand/</guid>
-      <description>&lt;p&gt;Look at this interesting project!&lt;/p&gt;
+      <description>
+
+
+&lt;div id=&#34;background&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Background&lt;/h1&gt;
+&lt;p&gt;The number of malaria cases in Thailand has dropped substantially in recent years and, as a result, the Thai Ministry of Public Health has recently transitioned from a strategy of malaria control to a strategy of malaria elimination, with the goal of attaining zero locally-acquired cases by 2024. While much of the country has now been malaria-free for many years, the vast majority of active transmission takes place in three particular regions bordering Mynamar (West), Cambodia (East), and Malaysia (South).&lt;/p&gt;
+&lt;div id=&#34;reversion&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Reversion&lt;/h2&gt;
+&lt;p&gt;As Thailand approaches elimination, the goal is to reduce the number of active transmission areas and prevent places that were previously non-active from reverting to active-transmission status. While the Malaria Elimination Strategy is highly focused on the former goal, less attention has been given to prevention of local area reversion and how it may impede progress towards country-wide malaria elimination.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Reversion: when a foci with no local malaria transmission during the previous 3 years (non-active) experiences at least 1 locally acquired case, thus becoming a location with recent active malaria transmission (active).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/div&gt;
+&lt;div id=&#34;motivation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Motivation&lt;/h2&gt;
+&lt;p&gt;The goal of this project is to investigate the spatial intensity of local-area reversion, to consider foci reversion in the context of a transmission dynamics framework, and to make recommendations for reversion reduction policies in Thailand.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Data&lt;/h2&gt;
+&lt;p&gt;To address these questions, we analyzed data from the Thailand Ministry of Public Health, Vector Bourne Disease Unit’s Malaria Information System (MIS), which is the country-wide vertical surveillance system for tracking malaria cases. The dataset contains case counts, population estimates, and latitude/longitude points for approximately 90,000 foci (hamlets or sub-village geographical units) for years 2011-2017, covering all of Thailand’s 77 provinces.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;methods&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Methods&lt;/h2&gt;
+&lt;p&gt;For this analysis I performed a Kernel Density Relative Risk Map of reversion intensity.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;spatial-analysis-kernel-density-relative-risk-map&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Spatial Analysis: Kernel Density Relative Risk Map&lt;/h1&gt;
+&lt;p&gt;Because reversion is a point process, we want to assess the spatial intensity of points. This motivates the use of Kernal Density Estimation with spatial points. The goal is to produce a map showing the density of foci that reverted during the study period, conditional on the density of all foci that were not active at baseline.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;## Simple feature collection with 77 features and 6 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: 97.34632 ymin: 5.610785 xmax: 105.6409 ymax: 20.46396
+## epsg (SRID):    4240
+## proj4string:    +proj=longlat +a=6377276.345 +b=6356075.41314024 +towgs84=210,814,289,0,0,0,0 +no_defs
+## # A tibble: 77 x 7
+##    ISO   PROV_NAMT Adm1Name Adm1Code Adm0Name Admin0Code
+##    &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;     &amp;lt;chr&amp;gt;    &amp;lt;chr&amp;gt;    &amp;lt;chr&amp;gt;    &amp;lt;chr&amp;gt;     
+##  1 TH    เชียงใหม่   Chiang … TH50     Thailand TH        
+##  2 TH    เชียงราย   Chiang … TH57     Thailand TH        
+##  3 TH    เพชรบุรี    Phetcha… TH76     Thailand TH        
+##  4 TH    เพชรบูรณ์   Phetcha… TH67     Thailand TH        
+##  5 TH    เลย       Loei     TH42     Thailand TH        
+##  6 TH    แพร่       Phrae    TH54     Thailand TH        
+##  7 TH    แม่ฮ่องสอน  Mae Hon… TH58     Thailand TH        
+##  8 TH    กระบี่      Krabi    TH81     Thailand TH        
+##  9 TH    กรุงเทพม…  Bangkok  TH10     Thailand TH        
+## 10 TH    กาญจนบุรี   Kanchan… TH25     Thailand TH        
+## # ... with 67 more rows, and 1 more variable: geometry &amp;lt;MULTIPOLYGON [°]&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After importing and cleaning the data, we start by converting the points to SP Objects.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;P &amp;lt;- CRS(&amp;quot;+init=epsg:4240&amp;quot;)
+
+# This is points for HE and Rev foci in select counties
+non.active_point &amp;lt;- SpatialPointsDataFrame(coords = foci.non.active[ , 6:7], data = foci.non.active, proj4string = P)
+
+rev_point &amp;lt;- SpatialPointsDataFrame(coords = foci.rev[ , 6:7], data = foci.rev, proj4string = P)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, we create the owin window and the reversion/non-active ppp objects.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Create window 
+boundary_owin &amp;lt;- maptools::as.owin.SpatialPolygons(boundary)
+
+# Create the non-active ppp object
+non.active_ppp &amp;lt;- ppp(x = coordinates(non.active_point)[, 1], 
+                      y = coordinates(non.active_point)[, 2],
+                      window = boundary_owin)
+
+# Create the rev ppp object
+rev_ppp &amp;lt;- ppp(x = coordinates(rev_point)[, 1], 
+               y = coordinates(rev_point)[, 2],
+               window = boundary_owin)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We calculate bandwidths using the LIK.density() function. The LIK bandwidth for non-active points took a long time, so I input the value direclty here.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;h_LIK_rev &amp;lt;- LIK.density(rev_ppp)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Searching for optimal h in [0.000928335559257248, 1.38242995721322]...Done.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;h_LIK_non.active &amp;lt;- 0.05  &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Create the KDE surfaces then use risk() to put them together into a single map.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Creating Adaptive KDE Surfaces
+kde_adapt_rev_LINK &amp;lt;- bivariate.density(rev_ppp, 
+                                        h0 = h_LIK_rev, 
+                                        edge = &amp;#39;diggle&amp;#39;, 
+                                        adapt = TRUE,
+                                        verbose = FALSE)
+
+kde_adapt_non.active_LINK &amp;lt;- bivariate.density(non.active_ppp, 
+                                               h0 = 0.05, 
+                                               edge = &amp;#39;diggle&amp;#39;,
+                                               adapt = TRUE,
+                                               verbose = FALSE)      
+
+
+# Create the Relative Risk map using the two adaptive KDE surfaces
+imr_adapt_LINK &amp;lt;- risk(kde_adapt_rev_LINK, kde_adapt_non.active_LINK, 
+                       tolerate = T,
+                       verbose = F, 
+                       log = T,
+                       edge = &amp;#39;diggle&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, we can plot the Relative Risk Map.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Plot the Relative Risk Map
+background &amp;lt;- st_union(provinces)
+plot(imr_adapt_LINK, col = rev(rainbow(100, start = 0, end = 4/6)), main = &amp;quot;Relative Risk of Reversion&amp;quot;)
+plot(background, col = &amp;#39;grey&amp;#39;, add = T)
+plot(imr_adapt_LINK, col = rev(rainbow(100, start = 0, end = 4/6)), add = T)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/project/malaria-risk-map-thailand/index_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;div id=&#34;interpretation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Interpretation&lt;/h2&gt;
+&lt;p&gt;The relative risk map shows that the spatial intensity of foci that reverted is significantly higher than expected given the spatial intensity of non-active foci in areas along the eastern and western coasts that are known to have high local malaria transmission.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;force-of-reversion&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Force of Reversion&lt;/h1&gt;
+&lt;p&gt;These results suggest that foci reversion is a non-random process in space and in terms of time-to-event (rate). In terms of transmission dynamics, the rate of reversion can be thought of as analogous to the force of infection (rate at which Susceptible (Non- active transmission foci) become Infected (Reverted foci)).&lt;/p&gt;
+&lt;p&gt;In transmission dynamics:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Force of Infection (lamda) = Contact rate (alpha) x Probability of transmission per contact (beta) x Proportion of the population that is infected&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In our study alpha and beta were not measured directly, but their product can be estimated (for each district) by dividing the reversion rate by the proportion of active transmission foci per district. Overall, this equation shows how the Force of Reversion is primarily driven by the &lt;strong&gt;surrounding proportion of foci in which there is active transmission&lt;/strong&gt;. Our model (not shown) and our relative risk map support this hypothesis as well.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;recommendations&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Recommendations&lt;/h1&gt;
+&lt;p&gt;Current guidelines do not require malaria prevention measures in non-active transmission foci that are located in high transmission districts. Although, sometimes prevention interventions are executed in these foci regardless. Our analysis suggests that these foci are at high risk of reversion due to both spatial intensity of reversion and transmission dynamic frameworks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Therefore, we suggest that Thailand should consider expanding their interventions throughout districts with high proportion of active transmission foci.&lt;/strong&gt;&lt;/p&gt;
+&lt;/div&gt;
 </description>
     </item>
     
@@ -26,9 +145,171 @@
       <link>/project/nipah-virus-model/</link>
       <pubDate>Fri, 01 Nov 2019 10:30:19 -1030</pubDate>
       <guid>/project/nipah-virus-model/</guid>
-      <description>&lt;p&gt;Look at this interesting project!&lt;/p&gt;
+      <description>
 
-&lt;p&gt;&lt;a href=&#34;http://www.pragatiprasad.com/&#34; target=&#34;_blank&#34;&gt;external&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Currently, outbreaks of Nipah virus disease among humans have been relatively small. To simulate Nipah virus pathogen evolution towards more effective human-to-human transmission capabilities, we assessed the impact on cumulative incidence and basic reproductive number (R0) of incremental increases in the proportion of the infectious humans that are highly infectious (Mu).&lt;/p&gt;
+&lt;div id=&#34;base-model&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Base model&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(&amp;quot;EpiModel&amp;quot;)
+set.seed(12345)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;Nipah &amp;lt;- function(t, t0, parms) { with(as.list(c(t0, parms)), {
+  
+  # Derived parameters/states
+  
+  num.b &amp;lt;- s_b.num + e_b.num + i_b.num + r_b.num
+  num.h &amp;lt;- s_h.num + e_h.num + i1_h.num + i2_h.num + r_h.num
+  
+  lambda.bb &amp;lt;-  beta_BB * (i_b.num/num.b)
+  lambda.bh &amp;lt;-  beta_BH * (i_b.num/num.b)
+  lambda.h1 &amp;lt;- beta1_HH * (i1_h.num/num.h)
+  lambda.h2 &amp;lt;- beta2_HH * (i2_h.num/num.h)
+  
+  # 1. Differential equations
+  dS_b &amp;lt;- -lambda.bb*s_b.num
+  dE_b &amp;lt;- lambda.bb*s_b.num - theta*e_b.num
+  dI_b &amp;lt;- theta*e_b.num - gamma*i_b.num
+  dR_b &amp;lt;- gamma*i_b.num
+  
+  
+  dS_h &amp;lt;- -lambda.h1*s_h.num - lambda.h2*s_h.num -lambda.bh*s_h.num
+  dE_h &amp;lt;-  lambda.h1*s_h.num + lambda.h2*s_h.num - sigma*e_h.num + lambda.bh*s_h.num
+  dI1_h &amp;lt;- mu*sigma*e_h.num - rho*i1_h.num
+  dI2_h &amp;lt;- (1-mu)*sigma*e_h.num - rho*i2_h.num
+  dR_h &amp;lt;- rho*(1-delta1)*i1_h.num + rho*(1-delta2)*i2_h.num
+  dD_h &amp;lt;- rho*delta1*i1_h.num + rho*delta2*i2_h.num
+  
+  # 2. Outputs
+  list(c(dS_b, dE_b, dI_b, dR_b,
+         dS_h, dE_h, dI1_h, dI2_h, dR_h, dD_h,
+         si_h_BH.flow = lambda.bh*s_b.num,
+         si_h_HH.flow = lambda.h1*s_h.num + lambda.h2*s_h.num ))
+}) 
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;parameters&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Parameters&lt;/h3&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;param &amp;lt;- param.dcm(theta=1/6,
+                   gamma=1/15,
+                   sigma=1/9,
+                   rho=1/6,
+                   mu=seq(0.0, 0.3, 0.03), # Vary Mu from 0 to 0.3 in increments of 0.03
+                   delta1=1,
+                   delta2=0.71315524,
+                   beta_BB=0.01436117,
+                   beta_BH=0.11595493,  
+                   beta1_HH=0.69733082,    
+                   beta2_HH=0.04760139)   
+
+init &amp;lt;- init.dcm(s_b.num = 990, e_b.num=0, i_b.num = 10, r_b.num = 0,
+                 s_h.num = 998, e_h.num=0, i1_h.num = 1, i2_h.num=1, r_h.num = 0, d_h.num = 0,
+                 si_h_BH.flow=0, si_h_HH.flow=0)
+
+control &amp;lt;- control.dcm(nsteps = 360, new.mod = Nipah)
+
+sim &amp;lt;- dcm(param, init, control)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;calculate-additional-values-of-interest&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Calculate Additional Values of Interest&lt;/h3&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;sim &amp;lt;- mutate_epi(sim, h.total = s_h.num + e_h.num + i1_h.num + i2_h.num + r_h.num) # Total number of humans
+sim &amp;lt;- mutate_epi(sim, i_h.total = i1_h.num + i2_h.num)                             # Total number of infected humans&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;figure-1-human-incidence-varying-mu&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Figure 1: Human Incidence Varying Mu&lt;/h2&gt;
+&lt;p&gt;Using an SEIR model with stratified compartments for highly infectious and less infectious humans and parameters calibrated to the 2018 Kerala outbreak, we ran 11 simulations varying the Mu parameter from 0.0 to 0.3 in increments of 0.03. This parameter governs the proportion of infectious individuals that are highly infectious (Mu) and less infectious (1 - Mu) with regards to their ability to spread Nipah virus to other humans. Plots of the incidence case series (epi curve) for 11 model runs with varying Mu were presented.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/project/nipah-virus-model/index_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;figure-2-cumulative-incidence-by-varying-mu-parameter&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Figure 2: Cumulative Incidence by varying Mu parameter&lt;/h2&gt;
+&lt;p&gt;Using the same 11 model simulations, we calculated the cumulative incidence attributable to human-to-human transmission of each outbreak scenario and plotted the cumulative incidence and Mu value for each simulation. Human-to-human attributable cumulative incidence was used (excluding incidence attributable to bat-human infections) in an effort to isolate the impact of human-to-human transmission by itself. For comparison to observational outbreak investigation, we also highlighted the cumulative incidence (23 cases) from the 2018 Kerala outbreak and Mu parameter calibrated to that outbreak from our model.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Calculate the Cumulative Incidence for each run
+
+# 1) Convert the model runs into data frames
+df1 &amp;lt;- as.data.frame(sim, run = 1)
+df2 &amp;lt;- as.data.frame(sim, run = 2)
+df3 &amp;lt;- as.data.frame(sim, run = 3)
+df4 &amp;lt;- as.data.frame(sim, run = 4)
+df5 &amp;lt;- as.data.frame(sim, run = 5)
+df6 &amp;lt;- as.data.frame(sim, run = 6)
+df7 &amp;lt;- as.data.frame(sim, run = 7)
+df8 &amp;lt;- as.data.frame(sim, run = 8)
+df9 &amp;lt;- as.data.frame(sim, run = 9)
+df10 &amp;lt;- as.data.frame(sim, run = 10)
+df11 &amp;lt;- as.data.frame(sim, run = 11)
+
+# 2) Calculate the cumulative incidence for each model run
+
+    # NOTE: Here we are only using Human-to-Human infections 
+    # to calculate CI, because Bat-to-human infections are 
+    # unaffected by varying Mu, and we are more interested
+    # in the dynamics of infections attributable to 
+    # human-to-human transmission here.
+
+ci1 &amp;lt;- sum(df1$si_h_HH.flow) 
+ci2 &amp;lt;- sum(df2$si_h_HH.flow) 
+ci3 &amp;lt;- sum(df3$si_h_HH.flow) 
+ci4 &amp;lt;- sum(df4$si_h_HH.flow) 
+ci5 &amp;lt;- sum(df5$si_h_HH.flow) 
+ci6 &amp;lt;- sum(df6$si_h_HH.flow) 
+ci7 &amp;lt;- sum(df7$si_h_HH.flow) 
+ci8 &amp;lt;- sum(df8$si_h_HH.flow) 
+ci9 &amp;lt;- sum(df9$si_h_HH.flow) 
+ci10 &amp;lt;- sum(df10$si_h_HH.flow)
+ci11 &amp;lt;- sum(df11$si_h_HH.flow)
+
+
+# 3) Create data frame with cumulative incidence and varying Mu
+mu &amp;lt;- seq(0.0, 0.3, 0.03)
+ci &amp;lt;- rbind(ci1, ci2, ci3, ci4, ci5, ci6, ci7, ci8, ci9, ci10, ci11)
+mu.by.ci &amp;lt;- as.data.frame(cbind(mu, ci))
+
+    
+plot(x=mu, 
+ y=ci,
+ main = &amp;quot;Cumulative Incidence versus Mu&amp;quot;,
+ xlab = &amp;quot;Mu&amp;quot;,
+ ylab = &amp;quot;Cumulative Incidence&amp;quot;)
+abline(v=0.07621085) # Vertical line represents the calibrated Mu parameter for the 2018 Kerala Outbreak
+abline(h=23)         # Horrizontal line represents the cumulative incidence for the 2018 Kerala Outbreak&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/project/nipah-virus-model/index_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;calculate-r0&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Calculate R0&lt;/h2&gt;
+&lt;p&gt;Finally, using the same 11 model simulations, we estimated the theoretical R0 for each outbreak scenario and presented a plot of R0 vs Mu. We highlighted the Mu parameter value at which R0 crosses the critical value (R0 = 1), and also the estimated R0 and Mu parameter values from the 2018 Kerala Outbreak.&lt;/p&gt;
+&lt;p&gt;R0 was calculated using the following base equation:&lt;/p&gt;
+&lt;p&gt;R0 = effective contact rate per unit time x duration of infection&lt;/p&gt;
+&lt;p&gt;Using a weighted average of the two Beta parameters:&lt;/p&gt;
+&lt;p&gt;R0 = ( Mu x (Beta1_HH) + (1 - Mu) x (Beta2_HH) ) x duration of infection&lt;/p&gt;
+&lt;p&gt;Though there are more precise ways to calculate R0 (ex. next generation matrices), we felt this was an adequate estimation method given that highly infectious and less infectious individuals mix randomly and only differ in the effectiveness of their contacts at producing transmission.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# 1) Use a weighted average of the calibrated beta parameters to calculate an R0 value at each value of Mu
+R &amp;lt;- list()
+for (i in 1:100) {
+  R[i] &amp;lt;- ((0.69733082*(i/100)) + (0.04760139*(1-(i/100))))*6
+}
+
+# 2) Make a sequence of values to be used for the x axis (Mu)
+seq &amp;lt;- as.numeric(seq(0.01, 1, 0.01))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Figure 3: R0 by varying Mu parameter   
+
+plot(x = seq, 
+     y = R, 
+     main = &amp;quot;R versus Mu&amp;quot;, 
+     ylab = &amp;quot;Basic Reproduction Number&amp;quot;,
+     xlab = &amp;quot;Mu Parameter&amp;quot;,
+     xlim = c(0,0.3),
+     ylim = c(0,2))
+abline(h=1, col = &amp;quot;red&amp;quot;)              # Represents the critical threshold for reproduction number (R=1)
+abline(v=0.18, col = &amp;#39;red&amp;#39;)           # Represents the Mu parameter value at which R = 1
+abline(h=0.60, col = &amp;quot;blue&amp;quot;)          # Represents the R0 calculated in the literature for the 2018 Kerala Outbreak
+abline(v=0.07621085, col = &amp;quot;blue&amp;quot;)    # Represents the calibrated Mu parameter for the 2018 Kerala Outbreak&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/project/nipah-virus-model/index_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;discussion&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Discussion&lt;/h1&gt;
+&lt;p&gt;Overall, increasing Mu substantially impacts the size and duration of human outbreaks of Nipah virus disease. At levels calibrated to the 2018 Kerala Outbreak (Mu = 0.076) our method predicts a similar cumulative incidence as was observed during that outbreak investigation (23 cases). However, with Mu increased to 0.3, cumulative incidence skyrockets to &amp;gt; 800 cases. These findings suggest that Nipah virus has not yet gained substantial human-to-human transmission capability.&lt;/p&gt;
+&lt;p&gt;Analysis of the cumulative incidence for outbreaks with increasing Mu also indicate that there is a threshold for Mu, above which human-to-human attributable cumulative incidence increases in a sigmoidal growth pattern. In our simulations, bat-human incidence was not impacted by variations in the Mu parameter, and the cumulative incidence due to bat-human transmissions was negligible (~20 additional cases in each simulation). Bat-to-human incidence was therefore excluded from the cumulative incidence analysis.&lt;/p&gt;
+&lt;p&gt;Finally, estimates of R0 from our simulations suggest that current Nipah outbreaks do not exhibit sustained transmission (R0 ≥ 1) and that they are unlikely to do so until Mu reaches or exceeds a threshold value (Mu ≥ 0.18). That said, Mu = 0.18 is not a particularly high threshold, and may be a plausible future value for Mu given that Nipah virus is evolving quickly, and has only recently developed the capability to infect humans and cause human-to-human transmission. However, seen another way, Mu = 0.18 represents a more than 2x increase in the proportion of humans that are highly infectious compared to currently observed values - an increase that would represent a drastic change in the way Nipah currently presents in populations. Further research on viral evolution would provide a clearer picture of the probability that Nipah virus might attain this capability in the future.&lt;/p&gt;
+&lt;/div&gt;
 </description>
     </item>
     
@@ -37,10 +318,7 @@
       <link>/project/the-confounder/</link>
       <pubDate>Thu, 31 Oct 2019 17:05:19 -0400</pubDate>
       <guid>/project/the-confounder/</guid>
-      <description>&lt;p&gt;Look at this interesting project!&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://scholarblogs.emory.edu/epi/&#34; target=&#34;_blank&#34;&gt;external&lt;/a&gt;&lt;/p&gt;
-</description>
+      <description></description>
     </item>
     
   </channel>
